@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -18,10 +19,16 @@ class UserForm
                     ->label('Email address')
                     ->email()
                     ->required(),
+                Select::make('roles')
+                    ->relationship('roles' , 'name')
+                    ->label('Role')
+                    ->required(),
                 DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(fn(string $operation) => $operation === 'create')
+                    ->dehydrated(fn($state) => filled($state))
+                    ->dehydrateStateUsing(fn($state) => bcrypt($state)),
             ]);
     }
 }
